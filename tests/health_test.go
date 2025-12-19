@@ -11,7 +11,7 @@ import (
 )
 
 func TestHealthEndpoint(t *testing.T) {
-	app, _ := app.New(context.Background())
+	app, _ := app.New(context.Background(), 1, 0)
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	resp, err := app.Test(req)

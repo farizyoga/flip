@@ -15,7 +15,7 @@ import (
 )
 
 func TestUploadCSVSuccess(t *testing.T) {
-	app, _ := app.New(context.Background())
+	app, _ := app.New(context.Background(), 1, 0)
 
 	file, err := os.Open("./../transaction.csv")
 	assert.NoError(t, err)
@@ -41,7 +41,7 @@ func TestUploadCSVSuccess(t *testing.T) {
 }
 
 func TestUploadCSVWithoutTheFile(t *testing.T) {
-	app, _ := app.New(context.Background())
+	app, _ := app.New(context.Background(), 1, 0)
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)

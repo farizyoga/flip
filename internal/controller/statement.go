@@ -18,7 +18,8 @@ import (
 )
 
 type Controller struct {
-	Usecase usecase.UsecaseMethod
+	Usecase                usecase.UsecaseMethod
+	ReconciliationConsumer consumer.ReconciliationConsumerMethod
 }
 
 func NewController(opt Controller) *Controller {

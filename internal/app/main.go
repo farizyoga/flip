@@ -11,9 +11,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-func New(ctx context.Context) (*fiber.App, usecase.UsecaseMethod) {
+func New(ctx context.Context, worker int, maxRetry int) (*fiber.App, usecase.UsecaseMethod) {
 	statementRepository := repository.NewStatementRepository()
-	reconciliationConsumer := consumer.NewReconciliationConsumer(5, 100, 5, statementRepository)
+	reconciliationConsumer := consumer.NewReconciliationConsumer(worker, maxRetry, statementRepository)
 
 	go reconciliationConsumer.Listen(ctx)
 
@@ -23,7 +23,8 @@ func New(ctx context.Context) (*fiber.App, usecase.UsecaseMethod) {
 	})
 
 	ctrl := controller.NewController(controller.Controller{
-		Usecase: uc,
+		Usecase:                uc,
+		ReconciliationConsumer: reconciliationConsumer,
 	})
 
 	r := fiber.New()

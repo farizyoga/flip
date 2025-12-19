@@ -26,7 +26,7 @@ type StatementListResponse struct {
 }
 
 func TestTransactionIssueEndpointEmptyData(t *testing.T) {
-	app, _ := app.New(context.Background())
+	app, _ := app.New(context.Background(), 1, 0)
 
 	file, err := os.Open("./../noedit_transaction_for_test.csv")
 	assert.NoError(t, err)
@@ -57,8 +57,6 @@ func TestTransactionIssueEndpointEmptyData(t *testing.T) {
 
 	uploadID := statementResponse.Data.UploadID
 
-	time.Sleep(time.Second * 1)
-
 	assert.NotEmpty(t, uploadID)
 	assert.Equal(t, resp.StatusCode, http.StatusOK)
 
@@ -75,7 +73,7 @@ func TestTransactionIssueEndpointEmptyData(t *testing.T) {
 }
 
 func TestTransactionIssueEndpointReturnsFailedRecord(t *testing.T) {
-	app, uc := app.New(context.Background())
+	app, uc := app.New(context.Background(), 1, 0)
 
 	file, err := os.Open("./../noedit_transaction_for_test.csv")
 	assert.NoError(t, err)

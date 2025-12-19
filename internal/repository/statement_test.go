@@ -4,7 +4,10 @@ import (
 	"context"
 	"flip/internal/entity"
 	"flip/internal/repository"
+	"strings"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestNewStatementRepository(t *testing.T) {
@@ -26,152 +29,182 @@ func TestNewStatementRepository(t *testing.T) {
 }
 
 func TestStatementRepository_Create(t *testing.T) {
-	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
-		uploadID string
-		data     *entity.Statement
-		wantErr  bool
-	}{
-		// TODO: Add test cases.
+	ctx := context.Background()
+	repo := repository.NewStatementRepository()
+	uploadID := "test"
+
+	err := repo.Create(ctx, uploadID, &entity.Statement{
+		UploadID:     uploadID,
+		ID:           uuid.NewString(),
+		Timestamp:    1232522321,
+		Counterparty: "Test",
+		Type:         "CREDIT",
+		Amount:       1000,
+		Status:       "SUCCESS",
+		Description:  "Test",
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// TODO: construct the receiver type.
-			var i repository.StatementRepository
-			gotErr := i.Create(context.Background(), tt.uploadID, tt.data)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("Create() failed: %v", gotErr)
-				}
-				return
-			}
-			if tt.wantErr {
-				t.Fatal("Create() succeeded unexpectedly")
-			}
-		})
+
+	statements, err := repo.Get(ctx, uploadID)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(statements) != 1 {
+		t.Fatalf("record should be created")
 	}
 }
 
 func TestStatementRepository_Get(t *testing.T) {
-	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
-		uploadID string
-		want     []*entity.Statement
-		wantErr  bool
-	}{
-		// TODO: Add test cases.
+	ctx := context.Background()
+	repo := repository.NewStatementRepository()
+	uploadID := "test"
+
+	statements, err := repo.Get(ctx, uploadID)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// TODO: construct the receiver type.
-			var i repository.StatementRepository
-			got, gotErr := i.Get(context.Background(), tt.uploadID)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("Get() failed: %v", gotErr)
-				}
-				return
-			}
-			if tt.wantErr {
-				t.Fatal("Get() succeeded unexpectedly")
-			}
-			// TODO: update the condition below to compare got with tt.want.
-			if true {
-				t.Errorf("Get() = %v, want %v", got, tt.want)
-			}
-		})
+
+	if len(statements) != 0 {
+		t.Fatal("number of statement should 0")
+	}
+
+	err = repo.Create(ctx, uploadID, &entity.Statement{
+		UploadID:     uploadID,
+		ID:           uuid.NewString(),
+		Timestamp:    1232522321,
+		Counterparty: "Test",
+		Type:         "CREDIT",
+		Amount:       1000,
+		Status:       "SUCCESS",
+		Description:  "Test",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	statements, err = repo.Get(ctx, uploadID)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	if len(statements) != 1 {
+		t.Fatal("number of statement should 1")
 	}
 }
 
 func TestStatementRepository_GetWithPagination(t *testing.T) {
-	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
-		uploadID string
-		filter   repository.StatementFilter
-		page     int
-		size     int
-		want     []*entity.Statement
-		wantErr  bool
-	}{
-		// TODO: Add test cases.
+	ctx := context.Background()
+	repo := repository.NewStatementRepository()
+	uploadID := "test"
+
+	statements, err := repo.GetWithPagination(ctx, uploadID, repository.StatementFilter{
+		Status: "SUCCESS",
+	}, 1, 10)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// TODO: construct the receiver type.
-			var i repository.StatementRepository
-			got, gotErr := i.GetWithPagination(context.Background(), tt.uploadID, tt.filter, tt.page, tt.size)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("GetWithPagination() failed: %v", gotErr)
-				}
-				return
-			}
-			if tt.wantErr {
-				t.Fatal("GetWithPagination() succeeded unexpectedly")
-			}
-			// TODO: update the condition below to compare got with tt.want.
-			if true {
-				t.Errorf("GetWithPagination() = %v, want %v", got, tt.want)
-			}
-		})
+
+	if len(statements) != 0 {
+		t.Fatal("number of data should 0")
+	}
+
+	err = repo.Create(ctx, uploadID, &entity.Statement{
+		UploadID:     uploadID,
+		ID:           uuid.NewString(),
+		Timestamp:    1232522321,
+		Counterparty: "Test",
+		Type:         "CREDIT",
+		Amount:       1000,
+		Status:       "SUCCESS",
+		Description:  "Test",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	statements, err = repo.GetWithPagination(ctx, uploadID, repository.StatementFilter{
+		Status: "SUCCESS",
+		Type:   "CREDIT",
+	}, 1, 10)
+	if err != nil {
+		t.Fatalf("unexpected error %s", err)
+	}
+
+	if len(statements) != 1 {
+		t.Fatal("number of data should 1 based on filter")
 	}
 }
 
 func TestStatementRepository_UpdateToSuccess(t *testing.T) {
-	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
-		uploadID string
-		id       string
-		wantErr  bool
-	}{
-		// TODO: Add test cases.
+	ctx := context.Background()
+	repo := repository.NewStatementRepository()
+	uploadID := "test"
+	id := uuid.NewString()
+
+	err := repo.Create(ctx, uploadID, &entity.Statement{
+		UploadID:     uploadID,
+		ID:           id,
+		Timestamp:    1232522321,
+		Counterparty: "Test",
+		Type:         "CREDIT",
+		Amount:       1000,
+		Status:       "FAILED",
+		Description:  "Test",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// TODO: construct the receiver type.
-			var i repository.StatementRepository
-			gotErr := i.UpdateToSuccess(context.Background(), tt.uploadID, tt.id)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("UpdateToSuccess() failed: %v", gotErr)
-				}
-				return
-			}
-			if tt.wantErr {
-				t.Fatal("UpdateToSuccess() succeeded unexpectedly")
-			}
-		})
+
+	err = repo.UpdateToSuccess(ctx, uploadID, id)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	statements, err := repo.Get(ctx, uploadID)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	if !strings.EqualFold(statements[0].Status, "SUCCESS") {
+		t.Fatal("statement status should be updated to success")
 	}
 }
 
 func TestStatementRepository_UpdateToFailed(t *testing.T) {
-	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
-		uploadID string
-		id       string
-		wantErr  bool
-	}{
-		// TODO: Add test cases.
+	ctx := context.Background()
+	repo := repository.NewStatementRepository()
+	uploadID := "test"
+	id := uuid.NewString()
+
+	err := repo.Create(ctx, uploadID, &entity.Statement{
+		UploadID:     uploadID,
+		ID:           id,
+		Timestamp:    1232522321,
+		Counterparty: "Test",
+		Type:         "CREDIT",
+		Amount:       1000,
+		Status:       "SUCCESS",
+		Description:  "Test",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// TODO: construct the receiver type.
-			var i repository.StatementRepository
-			gotErr := i.UpdateToFailed(context.Background(), tt.uploadID, tt.id)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("UpdateToFailed() failed: %v", gotErr)
-				}
-				return
-			}
-			if tt.wantErr {
-				t.Fatal("UpdateToFailed() succeeded unexpectedly")
-			}
-		})
+
+	err = repo.UpdateToFailed(ctx, uploadID, id)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	statements, err := repo.Get(ctx, uploadID)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	if !strings.EqualFold(statements[0].Status, "FAILED") {
+		t.Fatal("statement status should be updated to success")
 	}
 }

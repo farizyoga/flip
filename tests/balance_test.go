@@ -12,7 +12,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +31,7 @@ type BalanceResponse struct {
 }
 
 func TestBalanceEndpoint(t *testing.T) {
-	app, uc := app.New(context.Background())
+	app, uc := app.New(context.Background(), 1, 0)
 
 	file, err := os.Open("./../noedit_transaction_for_test.csv")
 	assert.NoError(t, err)
@@ -62,8 +61,6 @@ func TestBalanceEndpoint(t *testing.T) {
 	assert.NotEmpty(t, statementResponse.Data.UploadID)
 
 	uploadID := statementResponse.Data.UploadID
-
-	time.Sleep(time.Second * 1)
 
 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/balance?upload_id=%s", uploadID), nil)
 	resp, err = app.Test(req)

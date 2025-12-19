@@ -49,8 +49,8 @@ func (i *StatementRepository) Create(ctx context.Context, uploadID string, data 
 }
 
 func (i *StatementRepository) Get(ctx context.Context, uploadID string) ([]*entity.Statement, error) {
-	i.mu.Lock()
-	defer i.mu.Unlock()
+	i.mu.RLock()
+	defer i.mu.RUnlock()
 
 	data := make([]*entity.Statement, 0)
 	statements, ok := i.data[uploadID]
@@ -66,8 +66,8 @@ func (i *StatementRepository) Get(ctx context.Context, uploadID string) ([]*enti
 }
 
 func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, error) {
-	i.mu.Lock()
-	defer i.mu.Unlock()
+	i.mu.RLock()
+	defer i.mu.RUnlock()
 
 	data := i.data[uploadID]
 	filtered := []*entity.Statement{}
