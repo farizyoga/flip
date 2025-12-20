@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FLIP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fa-solid fa-code"></i> FLIP
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#"><i class="fa-solid fa-house"></i> Dashboard</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container my-3" id="app">
+    <div class="row">
+      <!-- <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <h1 class="card-title">
+              <i class="fa-solid fa-rocket text-primary"></i>
+              Bootstrap 5 Starter
+            </h1>
+            <p class="card-text mt-3">
+              This is a simple Bootstrap 5 template with Font Awesome icons.
+            </p>
+            <button class="btn btn-primary">
+              <i class="fa-solid fa-thumbs-up"></i> Get Started
+            </button>
+          </div>
+        </div>
+      </div> -->
+			<div class="col-md-3">
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<h5 class="card-title">Health</h5>
+						<hr>
+						<template v-if="health.loaded">
+							<p><strong>Worker</strong></p>
+							<div class="row">
+								<div class="col-md-4 text-center">
+									{{ health.data.worker.total }}<br>Total
+								</div>
+								<div class="col-md-4 text-center">
+									{{ health.data.worker.busy }}<br>Busy
+								</div>
+								<div class="col-md-4 text-center">
+									{{ health.data.worker.available }}<br>Available
+								</div>
+							</div>
+							<br>
+							<p><strong>Retry</strong></p>
+							<div class="row">
+								<div class="col-md-4">
+
+								</div>
+								<div class="col-md-4 text-center">
+									{{ health.data.retry.inflight }}<br>Inflight
+								</div>
+								<div class="col-md-4">
+									
+								</div>
+							</div>
+							<br>
+							<p><strong>Memory Usage</strong></p>
+							<div class="row">
+								<div class="col-md-6 text-center">
+									{{ health.data.usage.current_allocation }} MB<br>Alloc.
+								</div>
+								<div class="col-md-6 text-center">
+									{{ health.data.usage.total_allocation }} MB<br>Total Alloc.
+								</div>
+							</div>
+						</template>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-9">
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<h5 class="card-title">Transaction Issue(s)<span class="pull-right"></span></h5>	
+						<hr>
+						<div class="row">
+							<div class="col-md-6">
+								<input type="text" v-on:keyup.enter="search()" v-model="uploadID" class="form-control" placeholder="Enter upload_id here and hit enter to search">
+							</div>
+							<div class="col-md-6">
+								<select class="form-control" v-model="type" @change="search()">
+									<option value="">--Filter Type--</option>
+									<option value="CREDIT">CREDIT</option>
+									<option value="DEBIT">DEBIT</option>
+								</select>
+							</div>
+						</div>
+						<br>
+						<template v-if="table.loaded">
+							<template v-if="table.data.rows.length > 0">
+								<div class="row">
+									<div class="col-md-12">
+										<table class="table table-stripped table-bordered">
+											<thead>
+												<th>ID</th>
+												<th>Timestamp</th>
+												<th>Counterparty</th>
+												<th>Amount</th>
+												<th>Type</th>
+												<th>Status</th>
+											</thead>
+											<tbody>
+												<template v-for="s in table.data.rows">
+													<tr>
+														<td>{{ s.id }}</td>
+														<td>{{ s.timestamp }}</td>
+														<td>{{ s.counterparty }}</td>
+														<td>{{ s.amount }}</td>
+														<td>{{ s.type }}</td>
+														<td>{{ s.status }}</td>
+													</tr>
+												</template>
+											</tbody>
+										</table>
+										<div class="row">
+											<div class="col-md-4 text-center">
+												<template v-if="table.data.page == 1">
+												Previous
+												</template>
+												<template v-else>
+													<a href="#" v-on:click="page = page-1; search()">Previous</a>
+												</template>
+											</div>
+											<div class="col-md-4 text-center">
+												{{ table.data.page }} / {{ table.data.total }}
+											</div>
+											<div class="col-md-4 text-center">
+												<template v-if="page == table.data.total">
+													Next
+												</template>
+												<template v-else>
+													<a href="#" v-on:click="page = page+1; search()">Next</a>
+												</template>
+											</div>
+										</div>
+									</div>
+								</div>
+							</template>
+							<template v-else>
+								No Data
+							</template>
+						</template>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+  const V = new Vue({
+		el: '#app',
+		data() {
+			return {
+				uploadID: null,
+				type: '',
+				status: '',
+				page: 1,
+				health: {
+					loaded: false,
+					data: {}
+				},
+				table: {
+					loaded: false,
+					data: {
+						rows: [],
+					}
+				}
+			}
+		},
+		async mounted() {
+			this.loadHealth()
+			setInterval(() => {
+				this.loadHealth()
+			}, 2000)
+		},
+		methods: {
+			async loadHealth() {
+				const response = await axios.get('http://localhost:8080/health')
+				this.health = {
+					loaded: true,
+					data: response.data
+				}
+			},
+			async search(page) {
+				const response = await axios.get('http://localhost:8080/transactions/issues?upload_id='+this.uploadID+'&type='+this.type+'&page='+this.page)
+				this.table = {
+					loaded: true,
+					data: response.data.data
+				}
+			}	
+		}
+	})
+  </script>
+</body>
+</html>

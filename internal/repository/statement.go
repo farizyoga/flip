@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"flip/internal/entity"
+	"math"
+	"slices"
 
 	"sort"
 	"strings"
@@ -15,14 +17,14 @@ type StatementRepository struct {
 }
 
 type StatementFilter struct {
-	Status string
+	Status []string
 	Type   string
 }
 
 type StatementRepositoryMethod interface {
 	Create(ctx context.Context, uploadID string, data *entity.Statement) error
 	Get(ctx context.Context, uploadID string) ([]*entity.Statement, error)
-	GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, error)
+	GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, int, error)
 	UpdateToSuccess(ctx context.Context, uploadID string, id string) error
 	UpdateToFailed(ctx context.Context, uploadID string, id string) error
 }
@@ -65,7 +67,7 @@ func (i *StatementRepository) Get(ctx context.Context, uploadID string) ([]*enti
 	return data, nil
 }
 
-func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, error) {
+func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, int, error) {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
 
@@ -73,8 +75,8 @@ func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID st
 	filtered := []*entity.Statement{}
 
 	for _, s := range data {
-		if filter.Status != "" {
-			if !strings.EqualFold(s.Status, filter.Status) {
+		if len(filter.Status) > 0 {
+			if !slices.Contains(filter.Status, s.Status) {
 				continue
 			}
 		}
@@ -95,7 +97,7 @@ func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID st
 	start := (page - 1) * size
 
 	if start >= len(filtered) {
-		return make([]*entity.Statement, 0), nil
+		return make([]*entity.Statement, 0), len(filtered), nil
 	}
 
 	end := start + size
@@ -103,7 +105,9 @@ func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID st
 		end = len(filtered)
 	}
 
-	return filtered[start:end], nil
+	totalPage := math.Ceil(float64(len(filtered)) / float64(size))
+
+	return filtered[start:end], int(totalPage), nil
 }
 
 func (i *StatementRepository) UpdateToSuccess(ctx context.Context, uploadID string, id string) error {

@@ -7,7 +7,7 @@ import (
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	app, _ := app.New(ctx, 25, 5)
+	app, _ := app.New(ctx, 100, 4)
 	defer cancel()
 
 	err := app.Listen(":8080")

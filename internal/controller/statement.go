@@ -7,7 +7,6 @@ import (
 	"flip/internal/consumer"
 	"flip/internal/entity"
 	"flip/internal/helper/response"
-	"flip/internal/usecase"
 
 	"io"
 	"strconv"
@@ -16,15 +15,6 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 )
-
-type Controller struct {
-	Usecase                usecase.UsecaseMethod
-	ReconciliationConsumer consumer.ReconciliationConsumerMethod
-}
-
-func NewController(opt Controller) *Controller {
-	return &opt
-}
 
 func (i *Controller) ActionStatementPost(c *fiber.Ctx) error {
 	uploadID := uuid.NewString()

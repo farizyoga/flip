@@ -27,9 +27,12 @@ func New(ctx context.Context, worker int, maxRetry int) (*fiber.App, usecase.Use
 		ReconciliationConsumer: reconciliationConsumer,
 	})
 
-	r := fiber.New()
+	r := fiber.New(fiber.Config{
+		BodyLimit: 32 * 1024 * 1024,
+	})
 	r.Use(logger.New())
 
+	r.Get("/", ctrl.ActionIndex)
 	r.Post("/statements", ctrl.ActionStatementPost)
 	r.Get("/balance", ctrl.ActionBalanceGet)
 	r.Get("/transactions/issues", ctrl.ActionTransactionIssueGet)

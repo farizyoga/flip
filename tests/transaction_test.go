@@ -69,7 +69,7 @@ func TestTransactionIssueEndpointEmptyData(t *testing.T) {
 	var statementListResponse StatementListResponse
 	err = json.NewDecoder(resp.Body).Decode(&statementListResponse)
 
-	assert.Equal(t, len(statementListResponse.Data.Rows), 0)
+	assert.Equal(t, 0, len(statementListResponse.Data.Rows))
 }
 
 func TestTransactionIssueEndpointReturnsFailedRecord(t *testing.T) {

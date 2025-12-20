@@ -101,8 +101,8 @@ func TestStatementRepository_GetWithPagination(t *testing.T) {
 	repo := repository.NewStatementRepository()
 	uploadID := "test"
 
-	statements, err := repo.GetWithPagination(ctx, uploadID, repository.StatementFilter{
-		Status: "SUCCESS",
+	statements, _, err := repo.GetWithPagination(ctx, uploadID, repository.StatementFilter{
+		Status: []string{"SUCCESS"},
 	}, 1, 10)
 	if err != nil {
 		t.Fatalf("unexpected error %s", err)
@@ -126,8 +126,8 @@ func TestStatementRepository_GetWithPagination(t *testing.T) {
 		t.Fatalf("unexpected error %v", err)
 	}
 
-	statements, err = repo.GetWithPagination(ctx, uploadID, repository.StatementFilter{
-		Status: "SUCCESS",
+	statements, _, err = repo.GetWithPagination(ctx, uploadID, repository.StatementFilter{
+		Status: []string{"SUCCESS"},
 		Type:   "CREDIT",
 	}, 1, 10)
 	if err != nil {
