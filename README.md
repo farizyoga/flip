@@ -35,6 +35,7 @@ The system is designed as a stateless API-driven service to handle larage CSV fi
 ## How To Run ##
 - run ```go build .```
 - run ```./flip```
+- open http://localhost:8080 on your browser to open health info
 
 ## How To Test ##
 - ```curl --location 'localhost:8080/statements' \ --form 'file=@"/flip/transaction.csv"'```
