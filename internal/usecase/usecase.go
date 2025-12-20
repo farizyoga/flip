@@ -13,9 +13,9 @@ type Usecase struct {
 }
 
 type UsecaseMethod interface {
-	CreateStatement(ctx context.Context, id string, data *entity.Statement) error
+	CreateStatement(ctx context.Context, id string, data entity.Statement) error
 	GetBalanceByUploadID(ctx context.Context, id string) int
-	FindStatementByUploadID(ctx context.Context, uploadID string, filter repository.StatementFilter, page, size int) ([]*entity.Statement, int, error)
+	FindStatementByUploadID(ctx context.Context, uploadID string, filter repository.StatementFilter, page, size int) ([]entity.Statement, int, error)
 	Publish(ctx context.Context, message consumer.ReconciliationConsumerMessage)
 	UpdateAllStatementToFailed(ctx context.Context, uploadID string) error
 }
@@ -24,7 +24,7 @@ func NewUsecase(opt Usecase) UsecaseMethod {
 	return &opt
 }
 
-func (i *Usecase) CreateStatement(ctx context.Context, id string, data *entity.Statement) error {
+func (i *Usecase) CreateStatement(ctx context.Context, id string, data entity.Statement) error {
 	return i.StatementRepository.Create(ctx, id, data)
 }
 
@@ -52,7 +52,7 @@ func (i *Usecase) GetBalanceByUploadID(ctx context.Context, id string) int {
 	return balance
 }
 
-func (i Usecase) FindStatementByUploadID(ctx context.Context, uploadID string, filter repository.StatementFilter, page, size int) ([]*entity.Statement, int, error) {
+func (i Usecase) FindStatementByUploadID(ctx context.Context, uploadID string, filter repository.StatementFilter, page, size int) ([]entity.Statement, int, error) {
 	return i.StatementRepository.GetWithPagination(ctx, uploadID, filter, page, size)
 }
 

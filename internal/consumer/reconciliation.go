@@ -28,7 +28,7 @@ type ReconciliationConsumer struct {
 type ReconciliationConsumerMessage struct {
 	ID      string
 	Attempt int
-	Data    *entity.Statement
+	Data    entity.Statement
 }
 
 type ReconciliationConsumerMethod interface {

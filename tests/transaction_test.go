@@ -104,7 +104,7 @@ func TestTransactionIssueEndpointReturnsFailedRecord(t *testing.T) {
 
 	uploadID := statementResponse.Data.UploadID
 
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Second * 2)
 
 	assert.NotEmpty(t, uploadID)
 	assert.Equal(t, resp.StatusCode, http.StatusOK)

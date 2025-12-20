@@ -53,7 +53,7 @@ func (i *Controller) ActionStatementPost(c *fiber.Ctx) error {
 			}
 
 			txID := uuid.NewString()
-			data := &entity.Statement{
+			data := entity.Statement{
 				UploadID:     uploadID,
 				ID:           txID,
 				Timestamp:    timestamp,

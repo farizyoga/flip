@@ -43,3 +43,5 @@ The system is designed as a stateless API-driven service to handle larage CSV fi
 - ```curl --location 'localhost:8080/balance?upload_id={upload_id}'```
 - ```curl --location 'localhost:8080/transactions/issues?upload_id={upload_id}&page=1&size=10'```
 - ```curl --location 'localhost:8080/health'```
+- run integration testing with race detection ```go test -test.fullpath=true -race -timeout 30s -count=1 flip/tests```
+- run unit testing ```go test -test.fullpath=true -race -timeout 30s -count=1 flip/internal/repository```

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"flip/internal/entity"
 	"math"
 	"slices"
@@ -13,7 +14,7 @@ import (
 
 type StatementRepository struct {
 	mu   sync.RWMutex
-	data map[string]map[string]*entity.Statement
+	data map[string]map[string]entity.Statement
 }
 
 type StatementFilter struct {
@@ -22,9 +23,9 @@ type StatementFilter struct {
 }
 
 type StatementRepositoryMethod interface {
-	Create(ctx context.Context, uploadID string, data *entity.Statement) error
-	Get(ctx context.Context, uploadID string) ([]*entity.Statement, error)
-	GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, int, error)
+	Create(ctx context.Context, uploadID string, data entity.Statement) error
+	Get(ctx context.Context, uploadID string) ([]entity.Statement, error)
+	GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]entity.Statement, int, error)
 	UpdateToSuccess(ctx context.Context, uploadID string, id string) error
 	UpdateToFailed(ctx context.Context, uploadID string, id string) error
 }
@@ -32,17 +33,17 @@ type StatementRepositoryMethod interface {
 func NewStatementRepository() StatementRepositoryMethod {
 	return &StatementRepository{
 		mu:   sync.RWMutex{},
-		data: make(map[string]map[string]*entity.Statement),
+		data: make(map[string]map[string]entity.Statement),
 	}
 }
 
-func (i *StatementRepository) Create(ctx context.Context, uploadID string, data *entity.Statement) error {
+func (i *StatementRepository) Create(ctx context.Context, uploadID string, data entity.Statement) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
 	_, ok := i.data[uploadID]
 	if !ok {
-		i.data[uploadID] = map[string]*entity.Statement{}
+		i.data[uploadID] = map[string]entity.Statement{}
 	}
 
 	i.data[uploadID][data.ID] = data
@@ -50,11 +51,11 @@ func (i *StatementRepository) Create(ctx context.Context, uploadID string, data 
 	return nil
 }
 
-func (i *StatementRepository) Get(ctx context.Context, uploadID string) ([]*entity.Statement, error) {
+func (i *StatementRepository) Get(ctx context.Context, uploadID string) ([]entity.Statement, error) {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
 
-	data := make([]*entity.Statement, 0)
+	data := make([]entity.Statement, 0)
 	statements, ok := i.data[uploadID]
 	if !ok {
 		return data, nil
@@ -67,12 +68,12 @@ func (i *StatementRepository) Get(ctx context.Context, uploadID string) ([]*enti
 	return data, nil
 }
 
-func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]*entity.Statement, int, error) {
+func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID string, filter StatementFilter, page, size int) ([]entity.Statement, int, error) {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
 
 	data := i.data[uploadID]
-	filtered := []*entity.Statement{}
+	filtered := []entity.Statement{}
 
 	for _, s := range data {
 		if len(filter.Status) > 0 {
@@ -97,7 +98,7 @@ func (i *StatementRepository) GetWithPagination(ctx context.Context, uploadID st
 	start := (page - 1) * size
 
 	if start >= len(filtered) {
-		return make([]*entity.Statement, 0), len(filtered), nil
+		return make([]entity.Statement, 0), len(filtered), nil
 	}
 
 	end := start + size
@@ -114,7 +115,17 @@ func (i *StatementRepository) UpdateToSuccess(ctx context.Context, uploadID stri
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
-	i.data[uploadID][id].Status = "SUCCESS"
+	if _, ok := i.data[uploadID]; !ok {
+		return errors.New("failed")
+	}
+
+	if _, ok := i.data[uploadID][id]; !ok {
+		return errors.New("failed")
+	}
+
+	current := i.data[uploadID][id]
+	current.Status = "SUCCESS"
+	i.data[uploadID][id] = current
 	return nil
 }
 
@@ -122,6 +133,16 @@ func (i *StatementRepository) UpdateToFailed(ctx context.Context, uploadID strin
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
-	i.data[uploadID][id].Status = "FAILED"
+	if _, ok := i.data[uploadID]; !ok {
+		return errors.New("failed")
+	}
+
+	if _, ok := i.data[uploadID][id]; !ok {
+		return errors.New("failed")
+	}
+
+	current := i.data[uploadID][id]
+	current.Status = "FAILED"
+	i.data[uploadID][id] = current
 	return nil
 }

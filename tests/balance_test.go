@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -61,6 +62,8 @@ func TestBalanceEndpoint(t *testing.T) {
 	assert.NotEmpty(t, statementResponse.Data.UploadID)
 
 	uploadID := statementResponse.Data.UploadID
+
+	time.Sleep(time.Second * 2)
 
 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/balance?upload_id=%s", uploadID), nil)
 	resp, err = app.Test(req)

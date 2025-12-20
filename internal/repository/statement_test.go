@@ -33,7 +33,7 @@ func TestStatementRepository_Create(t *testing.T) {
 	repo := repository.NewStatementRepository()
 	uploadID := "test"
 
-	err := repo.Create(ctx, uploadID, &entity.Statement{
+	err := repo.Create(ctx, uploadID, entity.Statement{
 		UploadID:     uploadID,
 		ID:           uuid.NewString(),
 		Timestamp:    1232522321,
@@ -72,7 +72,7 @@ func TestStatementRepository_Get(t *testing.T) {
 		t.Fatal("number of statement should 0")
 	}
 
-	err = repo.Create(ctx, uploadID, &entity.Statement{
+	err = repo.Create(ctx, uploadID, entity.Statement{
 		UploadID:     uploadID,
 		ID:           uuid.NewString(),
 		Timestamp:    1232522321,
@@ -112,7 +112,7 @@ func TestStatementRepository_GetWithPagination(t *testing.T) {
 		t.Fatal("number of data should 0")
 	}
 
-	err = repo.Create(ctx, uploadID, &entity.Statement{
+	err = repo.Create(ctx, uploadID, entity.Statement{
 		UploadID:     uploadID,
 		ID:           uuid.NewString(),
 		Timestamp:    1232522321,
@@ -145,7 +145,7 @@ func TestStatementRepository_UpdateToSuccess(t *testing.T) {
 	uploadID := "test"
 	id := uuid.NewString()
 
-	err := repo.Create(ctx, uploadID, &entity.Statement{
+	err := repo.Create(ctx, uploadID, entity.Statement{
 		UploadID:     uploadID,
 		ID:           id,
 		Timestamp:    1232522321,
@@ -180,7 +180,7 @@ func TestStatementRepository_UpdateToFailed(t *testing.T) {
 	uploadID := "test"
 	id := uuid.NewString()
 
-	err := repo.Create(ctx, uploadID, &entity.Statement{
+	err := repo.Create(ctx, uploadID, entity.Statement{
 		UploadID:     uploadID,
 		ID:           id,
 		Timestamp:    1232522321,
